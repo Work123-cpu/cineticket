@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const CINEMAS_FILE = path.join(__dirname, '../../data/cinemas.json');
+const CINEMAS_FILE = path.join(__dirname, '../../config/cinemas.json');
 
 // In-memory conversation state
 const userSessions = new Map();

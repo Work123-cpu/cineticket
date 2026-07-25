@@ -1,12 +1,14 @@
-# Environment variables (contains secret tokens)
+# Environment variables (contains secret tokens — NEVER commit this!)
 .env
 .env.local
 
 # Dependency directories
 node_modules/
 
-# Local data & audit logs
+# User task data (dynamic, changes at runtime — stored on Railway Volume)
 data/checks.json
+
+# Audit logs (generated at runtime)
 logs/
 *.log
 
@@ -15,3 +17,6 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+
+# config/cinemas.json is INTENTIONALLY committed to Git (static theater config)
+# Do NOT add config/ to this file!
