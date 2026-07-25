@@ -274,7 +274,7 @@ export function setupBot(token, checker) {
       `🎟️ *BookMyShow Ticket Monitor v3.0*\n` +
       `━━━━━━━━━━━━━━━━━━━━\n\n` +
       `💡 *Quickest way:* Just paste a BookMyShow movie URL!\n\n` +
-      `⚠️ *Server Redeploy Notice:* If the server was recently redeployed or updated, please paste your BookMyShow URL or use /add to re-add your task!\n\n` +
+      `⚠️ *Server Redeploy Notice:* If the server was recently redeployed or updated, please check your tasks or use /add to re-add your task!\n\n` +
       `📋 *Commands:*\n` +
       `🔹 /add      — Wizard to add a monitoring task\n` +
       `🔹 /list     — All tasks (active + done + blocked)\n` +
@@ -326,7 +326,7 @@ export function setupBot(token, checker) {
     if (checks.length === 0) {
       return ctx.replyWithMarkdown(
         `📋 *No monitoring tasks found.*\n\n` +
-        `⚠️ *Caution / Notice:* If the server was recently redeployed, please paste your BookMyShow movie URL or use /add to add your monitoring task again!`
+        `⚠️ *Caution / Notice:* If the server was recently redeployed, please check your tasks or use /add to add your monitoring task again!`
       );
     }
 
