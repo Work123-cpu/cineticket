@@ -27,6 +27,7 @@ export class TicketChecker {
           '--window-position=0,0',
           '--ignore-certificate-errors',
           '--ignore-certificate-errors-spki-list',
+          '--disable-blink-features=AutomationControlled',
           '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36'
         ]
       });
@@ -85,7 +86,7 @@ export class TicketChecker {
   scheduleNextCheck(checkId, customDelayMs = null) {
     this.stopCheck(checkId);
     const check = store.getAll().find(c => c.id === checkId);
-    if (!check || check.status !== 'active') return;
+    if (!check || check.status !== 'active') return; // NEVER schedule if blocked or triggered
     const delay = customDelayMs !== null ? customDelayMs : this.getNextIntervalMs(check);
     logger.debug(`Next check for [${check.movieName}] in ${Math.round(delay / 1000)}s`);
     const timer = setTimeout(() => {
@@ -98,14 +99,16 @@ export class TicketChecker {
     const check = store.getAll().find(c => c.id === checkId);
     if (!check) return { success: false, reason: 'Check not found' };
 
-    // Only run if active, or if force-retrying a blocked/triggered task
-    if (!force && check.status !== 'active') return { success: false, reason: 'Check not active' };
+    // Strict Status Check: If blocked or triggered and NOT forced, STOP!
+    if (!force && check.status !== 'active') {
+      this.stopCheck(checkId);
+      return { success: false, reason: `Check status is ${check.status}` };
+    }
 
-    // Unblock if forced
+    // Unblock if forced by user action
     if (force && check.status === 'blocked') {
       store.updateCheckStatus(checkId, { status: 'active', lastError: null });
     }
-    // Re-activate triggered tasks on force check
     if (force && check.status === 'triggered') {
       store.updateCheckStatus(checkId, { status: 'active', lastError: null });
     }
@@ -122,23 +125,66 @@ export class TicketChecker {
     try {
       const browser = await this.getBrowser();
       page = await browser.newPage();
-      await page.setViewport({ width: 1366, height: 768 });
-      await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' });
 
-      const response = await page.goto(check.url, { waitUntil: 'domcontentloaded', timeout: 25000 });
-      const statusCode = response ? response.status() : 0;
-      const html = await page.content();
+      await page.setViewport({ width: 1366, height: 768 });
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36');
+      await page.setExtraHTTPHeaders({
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'sec-ch-ua': '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"'
+      });
+
+      // Override navigator.webdriver
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+      });
+
+      let targetUrl = check.url;
+      let response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 25000 });
+      let statusCode = response ? response.status() : 0;
+      let html = await page.content();
+
+      // Fallback URL strategy if primary gets 403
+      if (statusCode === 403 || html.includes('Access Denied') || html.includes('cf-browser-verification')) {
+        const altCityCode = check.location.substring(0, 4);
+        const fallbackUrl = `https://in.bookmyshow.com/buytickets/${check.movieName}-${check.location}/movie-${altCityCode}-${check.eventId}-MT/${check.date}`;
+        logger.warn(`Primary URL got 403. Trying fallback URL: ${fallbackUrl}`);
+
+        try {
+          response = await page.goto(fallbackUrl, { waitUntil: 'domcontentloaded', timeout: 25000 });
+          statusCode = response ? response.status() : 0;
+          html = await page.content();
+        } catch {
+          // If fallback fails, keep primary status
+        }
+      }
 
       // ── Anti-bot block detection ──────────────────────────────────────────
       if (statusCode === 403 || html.includes('Access Denied') || html.includes('cf-browser-verification')) {
         logger.warn(`🚫 [BLOCKED] Anti-bot 403 for ${check.movieName} | URL: ${check.url}`);
+
+        // HARD STOP: Stop any timers and set status to blocked
+        this.stopCheck(checkId);
+
         store.updateCheckStatus(checkId, {
           status: 'blocked',
           checksCount: currentChecksCount,
           lastChecked: new Date().toISOString(),
           lastError: '403 Forbidden / Cloudflare Anti-Bot triggered'
         });
+
         await page.close();
+
+        // Send alert to Telegram user with recovery buttons
         if (this.onBlockCallback) this.onBlockCallback(check);
         return { success: false, reason: '403 Anti-bot block' };
       }
@@ -150,12 +196,15 @@ export class TicketChecker {
       }
 
       if (result.found) {
-        // 🎉 TICKETS FOUND — stop monitoring, mark triggered
+        // 🎉 TICKETS FOUND — HARD STOP: stop monitoring, mark triggered
         const cinemaDisplay = result.matchedCinemas.length > 0
           ? result.matchedCinemas.map(c => this.formatCinemaName(c)).join(', ')
           : 'Available Cinemas';
 
         logger.success(`🎉 [TICKETS OPEN!] ${check.movieName} on ${check.date} at: ${cinemaDisplay}`);
+
+        // HARD STOP: Stop timer completely
+        this.stopCheck(checkId);
 
         store.updateCheckStatus(checkId, {
           status: 'triggered',
@@ -165,8 +214,6 @@ export class TicketChecker {
           lastError: null
         });
 
-        // Stop the timer — no more checking needed
-        this.stopCheck(checkId);
         logger.info(`✅ Monitoring STOPPED for task ${checkId} (${check.movieName}) — tickets found.`);
 
         if (this.onSuccessCallback) {
@@ -185,7 +232,12 @@ export class TicketChecker {
           lastError: 'Bookings not open yet'
         });
         await page.close();
-        this.scheduleNextCheck(checkId);
+
+        // Only schedule next check if task is still active
+        const freshCheck = store.getAll().find(c => c.id === checkId);
+        if (freshCheck && freshCheck.status === 'active') {
+          this.scheduleNextCheck(checkId);
+        }
         return { success: false, message: 'Bookings not open yet' };
       }
 
@@ -199,12 +251,15 @@ export class TicketChecker {
         lastChecked: new Date().toISOString(),
         lastError: error.message
       });
-      this.scheduleNextCheck(checkId);
+      const freshCheck = store.getAll().find(c => c.id === checkId);
+      if (freshCheck && freshCheck.status === 'active') {
+        this.scheduleNextCheck(checkId);
+      }
       return { success: false, message: `Error: ${error.message}` };
     }
   }
 
-  // Format cinema slug to display name: "broadway-cinemas-coimbatore" → "Broadway Cinemas Coimbatore"
+  // Format cinema slug to display name
   formatCinemaName(slug) {
     if (!slug) return 'Unknown';
     return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -233,13 +288,13 @@ export class TicketChecker {
     $('a[href*="/buytickets/"]').each((i, el) => {
       const href = $(el).attr('href') || '';
 
-      // Skip movie breadcrumb links (not cinema session links)
+      // Skip movie breadcrumb links
       if (href.includes('/movies/')) return;
 
-      // Must contain the target date in the href
+      // Must contain target date
       if (checkDate && !href.includes(checkDate)) return;
 
-      // If cinema filters specified, match ANY of them (OR logic)
+      // If cinema filters specified, match ANY of them
       if (filters.length > 0) {
         const hrefLower = href.toLowerCase();
         const matchesAnyFilter = filters.some(filterStr => {
@@ -249,7 +304,7 @@ export class TicketChecker {
         if (!matchesAnyFilter) return;
       }
 
-      // Extract cinema slug from href for display
+      // Extract cinema slug
       const cinemaMatch = href.match(/\/cinemas\/[^\/]+\/([^\/]+)\/buytickets/);
       const cinemaSlug = cinemaMatch ? cinemaMatch[1] : 'unknown';
 

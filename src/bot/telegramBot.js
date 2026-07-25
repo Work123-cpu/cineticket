@@ -653,23 +653,51 @@ export function setupBot(token, checker) {
   // ─── Turbo ───────────────────────────────────────────────────────────────
   bot.action(/^btn_turbo_(.+)$/, (ctx) => {
     const checkId = ctx.match[1];
-    const check = store.updateCheckStatus(checkId, { speedOverride: 'turbo', status: 'active' });
+    let check = store.getAll().find(c => c.id === checkId);
     if (!check) return ctx.answerCbQuery('❌ Not found').catch(() => {});
+
+    check = store.updateCheckStatus(checkId, { speedOverride: 'turbo' });
     ctx.answerCbQuery('⚡ Switched to Turbo!').catch(() => {});
-    checker.scheduleNextCheck(checkId, 1000);
-    logger.info(`Task ${checkId} switched to Turbo`);
-    return ctx.editMessageText(buildTaskCard(check, checker), { parse_mode: 'Markdown', disable_web_page_preview: true, reply_markup: getActiveTaskKeyboard(check, checker) }).catch(() => {});
+    logger.info(`Task ${checkId} switched to Turbo mode`);
+
+    if (check.status === 'active') {
+      checker.scheduleNextCheck(checkId, 1000);
+    }
+
+    const kb = check.status === 'triggered' ? getTriggeredTaskKeyboard(check)
+      : check.status === 'blocked' ? getBlockedTaskKeyboard(check)
+      : getActiveTaskKeyboard(check, checker);
+
+    return ctx.editMessageText(buildTaskCard(check, checker), {
+      parse_mode: 'Markdown',
+      disable_web_page_preview: true,
+      reply_markup: kb
+    }).catch(() => {});
   });
 
   // ─── Eco ─────────────────────────────────────────────────────────────────
   bot.action(/^btn_eco_(.+)$/, (ctx) => {
     const checkId = ctx.match[1];
-    const check = store.updateCheckStatus(checkId, { speedOverride: 'eco', status: 'active' });
+    let check = store.getAll().find(c => c.id === checkId);
     if (!check) return ctx.answerCbQuery('❌ Not found').catch(() => {});
+
+    check = store.updateCheckStatus(checkId, { speedOverride: 'eco' });
     ctx.answerCbQuery('🐢 Switched to Eco!').catch(() => {});
-    checker.scheduleNextCheck(checkId);
-    logger.info(`Task ${checkId} switched to Eco`);
-    return ctx.editMessageText(buildTaskCard(check, checker), { parse_mode: 'Markdown', disable_web_page_preview: true, reply_markup: getActiveTaskKeyboard(check, checker) }).catch(() => {});
+    logger.info(`Task ${checkId} switched to Eco mode`);
+
+    if (check.status === 'active') {
+      checker.scheduleNextCheck(checkId);
+    }
+
+    const kb = check.status === 'triggered' ? getTriggeredTaskKeyboard(check)
+      : check.status === 'blocked' ? getBlockedTaskKeyboard(check)
+      : getActiveTaskKeyboard(check, checker);
+
+    return ctx.editMessageText(buildTaskCard(check, checker), {
+      parse_mode: 'Markdown',
+      disable_web_page_preview: true,
+      reply_markup: kb
+    }).catch(() => {});
   });
 
   // ─── Delete ───────────────────────────────────────────────────────────────
