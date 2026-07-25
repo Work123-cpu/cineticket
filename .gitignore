@@ -1,0 +1,17 @@
+# Environment variables (contains secret tokens)
+.env
+.env.local
+
+# Dependency directories
+node_modules/
+
+# Local data & audit logs
+data/checks.json
+logs/
+*.log
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
