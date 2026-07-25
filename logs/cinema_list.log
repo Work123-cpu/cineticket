@@ -1,0 +1,73 @@
+[2026-07-25T03:32:49.499Z] === Starting Cinema List Fetch ===
+[2026-07-25T03:32:49.958Z] Fetching cinemas for city: coimbatore — URL: https://in.bookmyshow.com/cinemas/coimbatore
+[2026-07-25T03:32:50.882Z] HTTP Status for coimbatore: 404
+[2026-07-25T03:32:50.998Z] Found 0 cinemas for coimbatore
+[2026-07-25T03:32:52.503Z] Fetching cinemas for city: chennai — URL: https://in.bookmyshow.com/cinemas/chennai
+[2026-07-25T03:32:52.780Z] HTTP Status for chennai: 404
+[2026-07-25T03:32:52.859Z] Found 0 cinemas for chennai
+[2026-07-25T03:32:54.363Z] Fetching cinemas for city: rajapalayam — URL: https://in.bookmyshow.com/cinemas/rajapalayam
+[2026-07-25T03:32:54.640Z] HTTP Status for rajapalayam: 404
+[2026-07-25T03:32:54.667Z] Found 0 cinemas for rajapalayam
+[2026-07-25T03:32:56.396Z] === Cinema Fetch Complete ===
+[2026-07-25T03:32:56.397Z] 
+--- COIMBATORE (0 cinemas) ---
+[2026-07-25T03:32:56.397Z] 
+--- CHENNAI (0 cinemas) ---
+[2026-07-25T03:32:56.398Z] 
+--- RAJAPALAYAM (0 cinemas) ---
+[2026-07-25T03:32:56.398Z] 
+Saved cinema list to: C:\Users\saile\Videos\BMSAnti\logs\cinema_list.json
+[2026-07-25T03:33:24.846Z] === Starting Cinema List Fetch ===
+[2026-07-25T03:33:25.310Z] Trying URLs for city: coimbatore
+[2026-07-25T03:33:26.779Z]   [coimbatore] https://in.bookmyshow.com/explore/cinemas/coimbatore → HTTP 200
+[2026-07-25T03:33:26.800Z]   [coimbatore] Page loaded, length: 75223
+[2026-07-25T03:33:26.824Z]   [coimbatore] Raw /cinemas/ links found: 0
+[2026-07-25T03:33:26.825Z] Found 0 cinemas for coimbatore
+[2026-07-25T03:33:28.330Z] Trying URLs for city: chennai
+[2026-07-25T03:33:28.700Z]   [chennai] https://in.bookmyshow.com/explore/cinemas/chennai → HTTP 200
+[2026-07-25T03:33:28.774Z]   [chennai] Page loaded, length: 58299
+[2026-07-25T03:33:28.787Z]   [chennai] Raw /cinemas/ links found: 0
+[2026-07-25T03:33:28.788Z] Found 0 cinemas for chennai
+[2026-07-25T03:33:30.299Z] Trying URLs for city: rajapalayam
+[2026-07-25T03:33:30.556Z]   [rajapalayam] https://in.bookmyshow.com/explore/cinemas/rajapalayam → HTTP 200
+[2026-07-25T03:33:30.568Z]   [rajapalayam] Page loaded, length: 75638
+[2026-07-25T03:33:30.579Z]   [rajapalayam] Raw /cinemas/ links found: 0
+[2026-07-25T03:33:30.579Z] Found 0 cinemas for rajapalayam
+[2026-07-25T03:33:32.749Z] === Cinema Fetch Complete ===
+[2026-07-25T03:33:32.750Z] 
+--- COIMBATORE (0 cinemas) ---
+[2026-07-25T03:33:32.750Z] 
+--- CHENNAI (0 cinemas) ---
+[2026-07-25T03:33:32.750Z] 
+--- RAJAPALAYAM (0 cinemas) ---
+[2026-07-25T03:33:32.751Z] 
+Saved cinema list to: C:\Users\saile\Videos\BMSAnti\logs\cinema_list.json
+[2026-07-25T03:34:02.818Z] === Cinema Fetch Start ===
+[2026-07-25T03:34:03.249Z] [coimbatore] Navigating to: https://in.bookmyshow.com/explore/cinemas/coimbatore
+[2026-07-25T03:34:07.798Z] [coimbatore] HTTP 200 — waiting for JS render...
+[2026-07-25T03:34:17.807Z] [coimbatore] No cinema links appeared after waiting
+[2026-07-25T03:34:17.815Z] [coimbatore] Page HTML length: 152436
+[2026-07-25T03:34:17.851Z] [coimbatore] Raw /cinemas/ hrefs (0): []
+[2026-07-25T03:34:17.852Z] [coimbatore] Parsed 0 cinemas
+[2026-07-25T03:34:19.854Z] [chennai] Navigating to: https://in.bookmyshow.com/explore/cinemas/chennai
+[2026-07-25T03:34:21.999Z] [chennai] HTTP 200 — waiting for JS render...
+[2026-07-25T03:34:32.004Z] [chennai] No cinema links appeared after waiting
+[2026-07-25T03:34:32.012Z] [chennai] Page HTML length: 152888
+[2026-07-25T03:34:32.035Z] [chennai] Raw /cinemas/ hrefs (0): []
+[2026-07-25T03:34:32.035Z] [chennai] Parsed 0 cinemas
+[2026-07-25T03:34:34.048Z] [rajapalayam] Navigating to: https://in.bookmyshow.com/explore/cinemas/rajapalayam
+[2026-07-25T03:34:35.879Z] [rajapalayam] HTTP 200 — waiting for JS render...
+[2026-07-25T03:34:45.886Z] [rajapalayam] No cinema links appeared after waiting
+[2026-07-25T03:34:45.895Z] [rajapalayam] Page HTML length: 153067
+[2026-07-25T03:34:45.910Z] [rajapalayam] Raw /cinemas/ hrefs (0): []
+[2026-07-25T03:34:45.911Z] [rajapalayam] Parsed 0 cinemas
+[2026-07-25T03:34:48.151Z] 
+=== FINAL RESULTS ===
+[2026-07-25T03:34:48.152Z] 
+--- COIMBATORE (0 cinemas) ---
+[2026-07-25T03:34:48.152Z] 
+--- CHENNAI (0 cinemas) ---
+[2026-07-25T03:34:48.153Z] 
+--- RAJAPALAYAM (0 cinemas) ---
+[2026-07-25T03:34:48.154Z] 
+Saved to: C:\Users\saile\Videos\BMSAnti\logs\cinema_list.json

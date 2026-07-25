@@ -1,0 +1,19 @@
+{
+  "coimbatore": [
+    { "name": "Broadway Cinemas", "keyword": "broadway" },
+    { "name": "INOX Prozone Mall", "keyword": "inox" },
+    { "name": "PVR Alveal Fun Savvy Mall", "keyword": "pvr" },
+    { "name": "Jayanthi Cinemas A/C 4K LASER ATMOS", "keyword": "jayanthi" },
+    { "name": "KG Cinemas", "keyword": "kg" },
+    { "name": "Kavitha Cinemas 4K Dolby Atmos", "keyword": "kavitha" },
+    { "name": "Murugan Cinemas A/C 4K Atmos", "keyword": "murugan" },
+    { "name": "Sree Dhanalakshmi Abirami Theatre", "keyword": "sree" }
+  ],
+  "chennai": [
+    { "name": "INOX Luxe Phoenix Market City Velachery", "keyword": "inox" },
+    { "name": "PVR Palazzo The Nexus Vijaya Mall", "keyword": "palazzo" }
+  ],
+  "rajapalayam": [
+    { "name": "Radiance Cinema Rajapalayam", "keyword": "radiance" }
+  ]
+}
