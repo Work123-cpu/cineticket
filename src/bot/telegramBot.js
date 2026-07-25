@@ -279,6 +279,7 @@ export function setupBot(token, checker) {
       `🔹 /list     — All tasks (active + done + blocked)\n` +
       `🔹 /check    — Force instant recheck\n` +
       `🔹 /status   — Live dashboard\n` +
+      `🔹 /info     — Bot info & total user count\n` +
       `🔹 /blocked  — Paused tasks & recovery\n` +
       `🔹 /done     — Successfully detected bookings\n` +
       `🔹 /logs     — Live audit log (last 12 events)\n` +
@@ -433,6 +434,36 @@ export function setupBot(token, checker) {
       `💤 *Total Waits:* ${fails}\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
       `💡 Use /list to manage | /blocked to unpause | /done to see completed`
+    );
+  });
+
+  // ─── /info ────────────────────────────────────────────────────────────────
+  bot.command('info', (ctx) => {
+    logger.info(`Chat ${ctx.chat.id} → /info`);
+
+    const allChecks = store.getAll();
+    const uniqueUserIds = new Set(allChecks.map(c => c.chatId));
+    const totalUsersCount = uniqueUserIds.size;
+    const totalTasksCount = allChecks.length;
+
+    return ctx.replyWithMarkdown(
+      `🤖 *CineTicket Bot Information*\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `👥 *Total Active Users:* \`${totalUsersCount}\` user(s)\n` +
+      `📦 *Total Tasks Monitored:* \`${totalTasksCount}\` task(s)\n\n` +
+      `🎟️ *About CineTicket:*\n` +
+      `Real-time BookMyShow ticket availability monitor & instant Telegram alert bot. Never miss movie tickets!\n\n` +
+      `✨ *Key Features:*\n` +
+      `• 🔗 *Instant URL Recognition:* Paste any BookMyShow link\n` +
+      `• 📅 *Date-Matched Detection:* Monitors exact show dates accurately\n` +
+      `• 🏟️ *Multi-Theater Filter:* Choose specific theaters (PVR, INOX, Broadway)\n` +
+      `• ⚡ *Turbo & Eco Modes:* Adaptive background check speed\n` +
+      `• 🚨 *Instant Push Alerts:* Direct booking link sent to chat\n\n` +
+      `🔒 *Privacy Policy:*\n` +
+      `1. *Information We Collect:* Only stores your Telegram Chat ID and requested movie parameters.\n` +
+      `2. *How We Use Data:* Strictly used to check BookMyShow ticket availability.\n` +
+      `3. *Data Storage & Security:* No passwords, identities, or payment details stored.\n` +
+      `4. *Control & Deletion:* Delete your tasks anytime using /del or the Delete button.`
     );
   });
 
